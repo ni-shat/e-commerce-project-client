@@ -1,16 +1,15 @@
-// app/products/[id]/page.js
-
-'use client'; // Add 'use client' at the top to make this a Client Component
-
+'use client';
 import { useState, useEffect } from 'react';
-import Header from '@/app/components/Header';
+import { useCart } from '@/app/context/CartContext'; // Adjust the path to where your CartContext is
 import Image from 'next/image';
 import { fetchOneProduct } from '@/lib/fetchOneProduct';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import Header from '@/app/components/Header';
 
 export default function ProductDetails({ params }) {
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    const { addToCart } = useCart(); // Now you can use addToCart
 
     // Fetch product data
     useEffect(() => {
@@ -30,7 +29,8 @@ export default function ProductDetails({ params }) {
 
     // Function to handle add to cart logic
     const handleAddToCart = () => {
-        console.log(`Added ${quantity} item(s) to the cart.`);
+        addToCart(product, quantity); // Add the product to the cart with the selected quantity
+        alert(`${quantity} item(s) added to the cart!`); // Success message (you can replace this with a dialog/modal)
     };
 
     if (!product) {
@@ -39,7 +39,7 @@ export default function ProductDetails({ params }) {
 
     return (
         <div>
-            <Header />
+            <Header></Header>
             <div className="p-4 lg:p-8 lg:w-[80%] mx-auto bg-white">
                 <div className="flex flex-col lg:flex-row lg:gap-4 items-center justify-center">
                     <Image
@@ -61,28 +61,15 @@ export default function ProductDetails({ params }) {
                         )}
                         <p className="text-md mt-2">{product.description}</p>
 
-                        <div className='flex gap-4 my-6'>
-                            {/* Quantity Selector */}
+                        <div className="flex gap-4 my-6">
                             <div className="flex items-center space-x-2">
-                                <div className='bg-white border border-gray-950 rounded-full font-bold flex justify-center items-center'>
-                                   
-                                    <FaMinus  className="mx-3 text-xs flex hover:cursor-pointer"
-                                        onClick={decreaseQuantity} />
-                                   
-                                    <p className="w-12 text-center  rounded-md py-2">{quantity}</p>
-                                    {/* <button
-                                        className=" text-gray-700 p-2 hover:bg-gray-400"
-                                        onClick={increaseQuantity}
-                                    >
-                                        +
-                                    </button> */}
-
-                                    <FaPlus  className="mx-3 text-xs flex hover:cursor-pointer"
-                                        onClick={increaseQuantity} />
+                                <div className="bg-white border border-gray-950 rounded-full font-bold flex justify-center items-center">
+                                    <FaMinus className="mx-3 text-xs flex hover:cursor-pointer" onClick={decreaseQuantity} />
+                                    <p className="w-12 text-center rounded-md py-2">{quantity}</p>
+                                    <FaPlus className="mx-3 text-xs flex hover:cursor-pointer" onClick={increaseQuantity} />
                                 </div>
                             </div>
 
-                            {/* Add to Cart Button */}
                             <button
                                 onClick={handleAddToCart}
                                 className="bg-yellow-500 text-white py-2 px-7 rounded-3xl hover:bg-yellow-600 uppercase font-semibold text-sm"
@@ -101,22 +88,6 @@ export default function ProductDetails({ params }) {
                             <strong>Brand:</strong> {product.brand}
                         </p>
                     </div>
-                </div>
-
-                <div className="mt-6">
-                    <h2 className="text-xl font-semibold">Reviews:</h2>
-                    {product.reviews.length > 0 ? (
-                        <ul className="list-disc pl-6">
-                            {product.reviews.map((review, index) => (
-                                <li key={index}>
-                                    <strong>{review.reviewerName}:</strong> {review.comment}{" "}
-                                    <span className="text-yellow-600">({review.rating} stars)</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No reviews yet.</p>
-                    )}
                 </div>
             </div>
         </div>
